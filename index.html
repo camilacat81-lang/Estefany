@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revista Digital - Nuestra Historia (16 Páginas - Edición Especial)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;600;700&family=Great+Vibes&family=Caveat:wght@600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --red-magazine: #8a0c13; 
+            --vibrant-red: #ff3b30;
+            --bg-site: #d9d4cd; 
+            --paper: #f4f1eb; 
+            --text-dark: #1a1a1a;
+            --font-serif: 'Playfair Display', serif;
+            --font-sans: 'Montserrat', sans-serif;
+            --font-script: 'Great Vibes', cursive;
+            --font-hand: 'Caveat', cursive;
+        }
+
+        body {
+            margin: 0; padding: 40px 0; background-color: var(--bg-site);
+            display: flex; flex-direction: column; align-items: center;
+            font-family: var(--font-serif); overflow-x: hidden; gap: 60px;
+        }
+
+        .magazine-wrapper { display: flex; flex-direction: column; gap: 60px; width: 100%; max-width: 1100px; }
+
+        /* --- SPREADS (Dobles Páginas) --- */
+        .spread { background: var(--paper); min-height: 700px; box-shadow: 0 20px 40px rgba(0,0,0,0.2), 0 5px 15px rgba(0,0,0,0.1); display: flex; position: relative; overflow: hidden; border-radius: 4px; }
+
+        .page-half { flex: 1; padding: 40px; box-sizing: border-box; position: relative; display: flex; flex-direction: column; width: 50%; }
+        
+        /* Lomo del libro */
+        .spread::after { content: ''; position: absolute; left: 50%; top: 0; bottom: 0; width: 4px; background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%); transform: translateX(-50%); z-index: 20; pointer-events: none; }
+
+        .page-number { position: absolute; bottom: 20px; font-family: var(--font-sans); font-size: 0.8rem; color: #888; }
+        .page-number.left { left: 20px; }
+        .page-number.right { right: 20px; }
+        .page-number.white { color: rgba(255,255,255,0.7); }
+
+        /* --- INTERACTIVIDAD --- */
+        .upload-input { display: none; }
+        .upload-placeholder { position: absolute; font-family: var(--font-sans); font-size: 0.9rem; color: rgba(0,0,0,0.5); pointer-events: none; text-align: center; text-transform: uppercase; letter-spacing: 1px; z-index: 5; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .has-image .upload-placeholder { display: none; }
+        
+        .clickable-frame { position: relative; cursor: pointer; display: flex; justify-content: center; align-items: center; overflow: hidden; background: rgba(0,0,0,0.05); }
+        .clickable-frame img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.4s; z-index: 2; }
+
+        /* --- TEXTURA CUADERNO --- */
+        .notebook-texture { background-color: #fdfcf9; background-image: linear-gradient(#e4e4e4 1px, transparent 1px); background-size: 100% 30px; background-position: 0 10px; position: relative; }
+        .notebook-texture::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50px; width: 2px; background: rgba(200, 50, 50, 0.4); z-index: 1; pointer-events: none; }
+
+        /* --- ESTILOS DE PORTADA ESPECIAL --- */
+        .cover-special-layout { padding: 0; display: flex; flex-direction: row; background: #fff; }
+        .cover-image-section { flex: 1; height: 100%; position: relative; }
+        .cover-image-section img { z-index: 1; }
+        .cover-image-section .upload-placeholder { z-index: 2; color: white; background: rgba(0,0,0,0.4); padding: 5px; border-radius: 4px;}
+
+        .cover-text-section { flex: 1.3; display: flex; flex-direction: column; color: #000; }
+        
+        .cover-red-header { background-color: var(--vibrant-red); color: #fff; font-family: var(--font-sans); font-weight: 700; text-transform: uppercase; writing-mode: vertical-rl; text-align: right; padding: 30px 10px; display: flex; justify-content: flex-end; align-items: center; }
+        .cover-red-header .the-love { transform: rotate(180deg); font-size: 1.8rem; letter-spacing: 2px; line-height: 1; margin: 0; }
+
+        .cover-white-body { padding: 25px; position: relative; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        .cover-metadata { position: absolute; top: 20px; right: 20px; text-align: right; color: var(--vibrant-red); font-family: var(--font-sans); font-size: 0.7rem; font-weight: 700; line-height: 1.3; }
+
+        .cover-headline { margin-top: 60px; font-family: var(--font-serif); line-height: 1; margin-bottom: 20px; }
+        .cover-headline .i-love-you { font-size: 3rem; display: block; font-weight: 400; font-style: italic; color: #000; }
+        .cover-headline .more-than { font-size: 2.5rem; display: block; font-weight: 700; color: var(--vibrant-red); font-family: var(--font-script); margin-left: -5px; margin-top: -10px;}
+        .cover-headline .words-can { font-size: 2.5rem; display: block; font-weight: 400; font-style: italic; color: #000;}
+
+        .cover-subline { font-family: var(--font-sans); font-size: 0.9rem; line-height: 1.6; color: #333; margin: 0 0 10px 0; }
+        .cover-byline { font-family: var(--font-sans); font-size: 0.8rem; font-weight: 600; color: #000; margin: 0; letter-spacing: 1px;}
+
+        .cover-numbers-row { display: flex; gap: 20px; font-family: var(--font-sans); font-weight: 700; color: var(--vibrant-red); font-size: 0.9rem; }
+        .cover-numbers-row .big-num { font-size: 1.8rem; display: block; margin-top: -5px;}
+        .cover-numbers-row > div { display: flex; flex-direction: column; }
+
+        .cover-barcode-area { border-top: 2px solid #000; padding-top: 10px; display: flex; align-items: flex-start; gap: 10px; font-family: var(--font-sans); font-size: 0.7rem;}
+        .cover-barcode-area .barcode-graphic { width: 100px; height: 30px; background: #fff; background-image: repeating-linear-gradient(to right, #000, #000 1px, #fff 1px, #fff 2px, #000 2px, #000 3px, #fff 3px, #fff 6px); }
+        .cover-barcode-area .barcode-text { line-height: 1.4; color: #333; text-align: left;}
+
+        /* --- ESTILOS DE PÁGINAS INTERIORES --- */
+        .title-script { font-family: var(--font-script); font-size: 4rem; color: white; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .title-serif { font-family: var(--font-serif); font-size: 3rem; color: var(--red-magazine); margin-bottom: 10px; }
+        
+        .heart-photo-frame { width: 250px; height: 250px; background: white; margin: 20px auto; -webkit-mask-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg"><path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"/></svg>'); -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center; border: 5px solid white; box-shadow: 0 0 0 4px rgba(255,255,255,0.5); }
+
+        .vinyl-record { width: 200px; height: 200px; background: #111; border-radius: 50%; box-shadow: inset 0 0 0 10px #222, inset 0 0 0 20px #111, inset 0 0 0 30px #222, 5px 5px 15px rgba(0,0,0,0.5); position: absolute; left: -100px; top: 50%; transform: translateY(-50%); display: flex; justify-content: center; align-items: center; }
+        .mp3-player { width: 220px; background: #ddd; border-radius: 15px; padding: 15px; margin: 0 auto; box-shadow: 0 10px 20px rgba(0,0,0,0.3); text-align: center; }
+        
+        .clip-polaroid { background: white; padding: 10px 10px 30px 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 160px; height: 180px; }
+        .clip-polaroid::before { content: ''; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 30px; height: 15px; background: silver; border-radius: 3px; z-index: 5; }
+
+        .circle-10-things { width: 250px; height: 250px; background: white; border-radius: 50%; margin: 20px auto; border: 2px dashed var(--red-magazine); padding: 10px; box-sizing: border-box; }
+        .quiz-row { display: flex; justify-content: space-between; margin-bottom: 15px; font-family: var(--font-sans); font-size: 0.9rem; border-bottom: 1px dotted #ccc; padding-bottom: 5px;}
+        .quiz-check { width: 15px; height: 15px; border: 2px solid var(--red-magazine); border-radius: 3px; }
+
+        .chat-bubble { background: var(--red-magazine); color: white; padding: 15px 20px; border-radius: 20px; max-width: 80%; margin-bottom: 20px; font-family: var(--font-sans); font-size: 0.9rem; position: relative; z-index: 2; }
+        .chat-left { border-bottom-left-radius: 5px; align-self: flex-start; }
+        .chat-right { background: #e0dcd3; color: black; border-bottom-right-radius: 5px; align-self: flex-end; }
+
+    </style>
+</head>
+<body>
+
+    <div class="magazine-wrapper" id="album-container">
+
+        <!-- SPREAD 1: Pág 1 (Portada Especial) y Pág 2 (Table of Contents) -->
+        <div class="spread">
+            <div class="page-half cover-special-layout">
+                <label class="cover-image-section clickable-frame" id="c-cover">
+                    <input type="file" class="upload-input" onchange="previewImage(event, 'i-cover', 'c-cover')">
+                    <span class="upload-placeholder">Subir Foto Portada (Vertical)</span><img id="i-cover" src="">
+                </label>
+
+                <div class="cover-text-section">
+                    <div class="cover-red-header">
+                        <span class="the-love">THE LOVE ISSUE</span>
+                    </div>
+                    <div class="cover-white-body">
+                        <div class="cover-metadata">
+                            PRICELESS<br>EST. 2026<br>FOR YOU
+                        </div>
+
+                        <div class="cover-headline">
+                            <span class="i-love-you">I love you</span>
+                            <span class="more-than">more than</span>
+                            <span class="words-can">words can define</span>
+                        </div>
+
+                        <p class="cover-subline">From the moment we met, every day is a new adventure. This issue is a reflection of us.</p>
+                        <p class="cover-byline">BY YOUR LOVING PARTNER</p>
+
+                        <div class="cover-numbers-row">
+                            <div class="our-story">OUR STORY IN / <span class="big-num">16</span> / PAGES</div>
+                            <div class="march-year"><span class="big-num">MARCH</span> / <span class="big-num">2026</span></div>
+                        </div>
+
+                        <div class="cover-barcode-area">
+                            <div class="barcode-graphic"></div> 
+                            <div class="barcode-text">0 123456 789012<br>MARCH 2026 ISSUE</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-number left white">1</div>
+            </div>
+
+            <div class="page-half" style="background: var(--red-magazine); color: white;">
+                <h2 style="font-family: var(--font-serif); font-size: 2.5rem; text-align: center; border-bottom: 2px solid white; padding-bottom: 10px;">TABLE OF CONTENTS</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; font-family: var(--font-sans); font-size: 0.9rem; margin-top: 20px; opacity: 0.9;">
+                    <p>03 ... One Year of Us</p>
+                    <p>04 ... Dear Love</p>
+                    <p>05 ... Little Things</p>
+                    <p>06 ... Favorite Messages</p>
+                    <p>07 ... Our Song</p>
+                    <p>08 ... How it Started</p>
+                    <p>09 ... Through the ups & downs</p>
+                    <p>10 ... Growing Together</p>
+                    <p>11 ... 10 Things I Love</p>
+                    <p>12 ... Him or Her</p>
+                    <p>13 ... Future Dates Bingo</p>
+                    <p>14 ... Where it all began</p>
+                    <p>15 ... Matching Styles</p>
+                    <p>16 ... The Next Chapter</p>
+                </div>
+                <div class="page-number right white">2</div>
+            </div>
+        </div>
+
+        <!-- SPREAD 2: Pág 3 (Heart Scrapbook) y Pág 4 (Letter) -->
+        <div class="spread">
+            <div class="page-half" style="background: var(--red-magazine); text-align: center;">
+                <h2 class="title-script">Nuestra Historia</h2>
+                <label class="clickable-frame heart-photo-frame" id="c-3">
+                    <input type="file" class="upload-input" onchange="previewImage(event, 'i-3', 'c-3')">
+                    <span class="upload-placeholder">Foto</span><img id="i-3" src="">
+                </label>
+                <div style="width: 120px; height: 80px; background: var(--paper); margin: 0 auto; position: relative; box-shadow: 2px 4px 10px rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center;">
+                    <div style="width: 25px; height: 25px; background: #8a0c13; border-radius: 50%; position: absolute; bottom: 10px; box-shadow: inset 2px 2px 5px rgba(0,0,0,0.5);"></div>
+                </div>
+                <div class="page-number left white">3</div>
+            </div>
+
+            <div class="page-half" style="background: var(--paper);">
+                <p class="title-script" style="font-size: 3rem; color: var(--red-magazine); margin-bottom: 20px;">Dear Love,</p>
+                <p style="font-family: var(--font-sans); font-size: 0.95rem; line-height: 2; text-align: justify;">
+                    El tiempo vuela cuando estás con la persona correcta. Cada recuerdo que hemos construido se siente como sacado de una película. No sé qué nos depara el futuro, pero sé que quiero que estés en él. 
+                    <br><br>
+                    Este es un recordatorio de todos los pequeños momentos, las risas, las locuras y la paz que me das. Eres mi lugar seguro en este mundo loco. Gracias por hacer que cada día cuente.
+                </p>
+                <p class="title-script" style="font-size: 2rem; color: var(--text-dark); text-align: right; margin-top: 40px;">Con amor...</p>
+                <div class="page-number right">4</div>
+            </div>
+        </div>
+
+        <!-- SPREAD 3: Pág 5 (Little Things) y Pág 6 (Messages) -->
+        <div class="spread">
+            <div class="page-half notebook-texture" style="padding-left: 70px;">
+                <h2 class="title-hand" style="font-family: var(--font-hand); font-size: 2.5rem; color: var(--red-magazine); transform: rotate(-2deg); margin-top: 20px; position:relative; z-index:2;">Little things I love about you</h2>
+                <label class="clickable-frame" id="c-5" style="width: 100%; height: 200px; background: white; padding: 10px; box-shadow: 2px 4px 10px rgba(0,0,0,0.1); transform: rotate(1deg); margin: 20px 0; z-index:2; border: 1px solid #ddd;">
+                    <input type="file" class="upload-input" onchange="previewImage(event, 'i-5', 'c-5')">
+                    <span class="upload-placeholder">Foto</span><img id="i-5" src="">
+                </label>
+                <ul style="font-family: var(--font-hand); font-size: 1.5rem; color: #333; position:relative; z-index:2; line-height: 1.8;">
+                    <li>Tu forma de hacerme reír.</li>
+                    <li>Cómo me apoyas en todo.</li>
+                    <li>Tu paciencia infinita.</li>
+                    <li>La forma en la que me miras.</li>
+                </ul>
+                <div class="page-number left">5</div>
+            </div>
+
+            <div class="page-half notebook-texture" style="padding-left: 70px;">
+                <h2 class="title-serif" style="text-align: center; position:relative; z-index:2;">Favorite Messages</h2>
+                <div style="display: flex; flex-direction: column; margin-top: 30px;">
+                    <div class="chat-bubble chat-left">Oye, estaba pensando en ti ❤️</div>
+                    <div class="chat-bubble chat-right">Yo también! Qué casualidad ✨</div>
+                    <div class="chat-bubble chat-left">No puedo esperar a verte.</div>
+                    <div class="chat-bubble chat-right">Cuento las horas. Te amo.</div>
+                </div>
+                <div class="page-number right">6</div>
+            </div>
+        </div>
+
+        <!-- SPREAD 4: Pág 7 (Playlist) y Pág 8 (How it Started) -->
+        <div class="spread">
+            <div class="page-half" style="background: var(--red-magazine); color: white;">
+                <div class="vinyl-record"><div style="width: 60px; height: 60px; background: var(--red-magazine); border-radius: 50%; display: flex; justify-content: center; align-items: center;"><div style="width: 10px; height: 10px; background: #fff; border-radius: 50%;"></div></div></div>
+                <div style="margin-left: 80px; text-align: center;">
+                    <h2 class="title-script" style="font-size: 3.5rem;">Our Song</h2>
+                    <div class="mp3-player" style="margin-top: 30px;">
+                        <label class="clickable-frame" id="c-7" style="height: 120px; background: white; margin-bottom: 15px; border: 2px solid #bbb;">
+                            <input type="file" class="upload-input" onchange="previewImage(event, 'i-7', 'c-7')">
+                            <span class="upload-placeholder">Canción</span><img id="i-7" src="">
+                        </label>
+                        <div style="width: 80px; height: 80px; background: white; border-radius: 50%; margin: 0 auto; border: 1px solid #ccc; position: relative;">
+                            <div style="width: 30px; height: 30px; background: #ddd; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="page-number left white">7</div>
+            </div>
+
+            <div class="page-half" style="background: var(--paper);">
+                <h2 class="title-serif" style="text-align: right;">How It Started</h2>
+                <div style="display: flex; flex-direction: column; gap: 30px; margin-top: 30px;">
+                    <div style="display: flex; align-items: center; gap: 20px;">
+                        <label class="clickable-frame clip-polaroid" id="c-8a" style="transform: rotate(-3deg);">
+                            <input type="file" class="upload-input" onchange="previewImage(event, 'i-8a', 'c-8a')">
+                            <span class="upload-placeholder">Tú</span><img id="i-8a" src="">
+                        </label>
+                        <p class="title-script" style="font-size: 2.5rem; color: var(--red-magazine);">Tú</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 20px; align-self: flex-end;">
+                        <p class="title-script" style="font-size: 2.5rem; color: var(--red-magazine);">Yo</p>
+                        <label class="clickable-frame clip-polaroid" id="c-8b" style="transform: rotate(2deg);">
+                            <input type="file" class="upload-input" onchange="previewImage(event, 'i-8b', 'c-8b')">
+                            <span class="upload-placeholder">Yo</span><img id="i-8b" src="">
+                        </label>
+                    </div>
+                </div>
+                <div class="page-number right">8</div>
+            </div>
+        </div>
+
+        <!-- SPREAD 5: Pág 9 (Film Strip) y Pág 10 (Growing Together) -->
+        <div class="spread">
+            <div class="page-half" style="background: var(--red-magazine); align-items: center;">
+                <p style="font-family: var(--font-serif); font-size: 1.5rem; color: white;">Through the ups & downs</p>
+                <div style="background: #111; padding: 10px 5px; width: 100px; display: flex; flex-direction: column; gap: 10px; position: relative; margin-top: 20px;">
+                    <div style="position: absolute; top:0; bottom:0; left: -10px; width: 6px; background-image: repeating-linear-gradient(to bottom, transparent, transparent 10px, white 10px, white 15px);"></div>
+                    <div style="position: absolute; top:0; bottom:0; right: -10px; width: 6px; background-image: repeating-linear-gradient(to bottom, transparent, transparent 10px, white 10px, white 15px);"></div>
+                    
+                    <label class="clickable-frame" id="c-9a" style="height: 80px; background: #333;"><input type="file" class="upload-input" onchange="previewImage(event, 'i-9a', 'c-9a')"><span class="upload-placeholder" style="color:white; font-size:0.7rem;">Foto</span><img id="i-9a" src=""></label>
+                    <label class="clickable-frame" id="c-9b" style="height: 80px; background: #333;"><input type="file" class="upload-input" onchange="previewImage(event, 'i-9b', 'c-9b')"><span class="upload-placeholder" style="color:white; font-size:0.7rem;">Foto</span><img id="i-9b" src=""></label>
+                    <label class="clickable-frame" id="c-9c" style="height: 80px; background: #333;"><input type="file" class="upload-input" onchange="previewImage(event, 'i-9c', 'c-9c')"><span class="upload-placeholder" style="color:white; font-size:0.7rem;">Foto</span><img id="i-9c" src=""></label>
+                </div>
+                <div class="page-number left white">9</div>
+            </div>
+
+            <div class="page-half" style="background: var(--red-magazine);">
+                <p class="title-script" style="font-size: 3rem; text-align: center; color: white;">Growing Together</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px;">
+                    <label class="clickable-frame" id="c-10a" style="height: 140px; background: white;"><input type="file" class="upload-input" onchange="previewImage(event, 'i-10a', 'c-10a')"><span class="upload-placeholder">Foto</span><img id="i-10a" src=""></label>
+                    <label class="clickable-frame" id="c-10b" style="height: 140px; background: white;"><input type="file" class="upload-input" onchange="previewImage(event, 'i-10b', 'c-10b')"><span class="upload-placeholder">Foto</span><img id="i-10b" src=""></label>
+                    <label class="clickable-frame" id="c-10c" style="height: 140px; background: white;"><input type="file" class="upload-input" onchange="previewImage(event, 'i-10c', 'c-10c')"><span class="upload-placeholder">Foto</span><img id="i-10c" src=""></label>
+                    <label class="clickable-frame" id="c-10d" style="height: 140px; background: white;"><input type="file" class="upload-input" onchange="previewImage(event, 'i-10d', 'c-10d')"><span class="upload-placeholder">Foto</span><img id="i-10d" src=""></label>
+                </div>
+                <div class="page-number right white">10</div>
+            </div>
+        </div>
+
+        <!-- SPREAD 6: Pág 11 (10 Things) y Pág 12 (Him OR Her) -->
+        <div class="spread">
+            <div class="page-half" style="background: var(--red-magazine); align-items: center; color: white;">
+                <h2 class="title-serif" style="color: white; font-size: 2rem;">10 Things I Love<br>About You</h2>
+                <div style="display: flex; align-items: center; justify-content: center; gap: 20px; width: 100%;">
+                    <div style="display: flex; flex-direction: column; gap: 20px; font-family: var(--font-serif); font-size: 1.5rem;">
+                        <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                    </div>
+                    <label class="clickable-frame circle-10-things" id="c-11">
+                        <input type="file" class="upload-input" onchange="previewImage(event, 'i-11', 'c-11')">
+                        <div style="width:100%; height:100%; border-radius:50%; overflow:hidden; position:relative;">
+                            <span class="upload-placeholder">Foto</span><img id="i-11" src="" style="width:100%; height:100%; object-fit:cover; opacity:0; transition:0.3s; position:absolute; top:0; left:0;">
+                        </div>
+                    </label>
+                    <div style="display: flex; flex-direction: column; gap: 20px; font-family: var(--font-serif); font-size: 1.5rem;">
+                        <span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+                    </div>
+                </div>
+                <div class="page-number left white">11</div>
+            </div>
+
+            <div class="page-half" style="background: var(--paper);">
+                <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 30px;">
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--red-magazine); color: white; display: flex; justify-content: center; align-items: center; font-family: var(--font-serif); font-size: 1.2rem;">HIM</div>
+                    <div style="font-family: var(--font-serif); font-size: 1.2rem; align-self: center;">OR</div>
+                    <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--red-magazine); color: white; display: flex; justify-content: center; align-items: center; font-family: var(--font-serif); font-size: 1.2rem;">HER</div>
+                </div>
+                <div class="quiz-row"><div class="quiz-check"></div><span>¿Quién dijo Te Amo primero?</span><div class="quiz-check"></div></div>
+                <div class="quiz-row"><div class="quiz-check"></div><span>¿Quién es más gracioso?</span><div class="quiz-check"></div></div>
+                <div class="quiz-row"><div class="quiz-check"></div><span>¿Quién cocina mejor?</span><div class="quiz-check"></div></div>
+                <div class="quiz-row"><div class="quiz-check"></div><span>¿Quién es más romántico?</span><div class="quiz-check"></div></div>
+                <div class="quiz-row"><div class="quiz-check"></div><span>¿Quién tarda más en arreglarse?</span><div class="quiz-check"></div></div>
+                <div class="quiz-row"><div class="quiz-check"></div><span>¿Quién es más terco?</span><div class="quiz-check"></div></div>
+                <div class="page-number right">12</div>
+            </div>
+        </div>
+
+        <!-- SPREAD 7: Pág 13 (Bingo) y Pág 14 (Map) -->
+        <div class="spread">
+            <div class="page-half notebook-texture" style="padding-left: 70px;">
+                <h2 class="title-serif" style="text-align: center; color: var(--red-magazine); position:relative; z-index:2;">Future Dates BINGO</h2>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; position:relative; z-index:2;">
+                    <div style="height: 100px; border: 2px solid var(--red-magazine); border-radius: 10px; display: flex; justify-content: center; align-items: center; text-align: center; font-family: var(--font-sans); font-size: 0.8rem; background: rgba(255,255,255,0.8);">Cine en casa</div>
+                    <div style="height: 100px; border: 2px solid var(--red-magazine); border-radius: 10px; display: flex; justify-content: center; align-items: center; text-align: center; font-family: var(--font-sans); font-size: 0.8rem; background: rgba(255,255,255,0.8);">Viaje a la playa</div>
+                    <div style="height: 100px; border: 2px solid var(--red-magazine); border-radius: 10px; display: flex; justify-content: center; align-items: center; text-align: center; font-family: var(--font-sans); font-size: 0.8rem; background: rgba(255,255,255,0.8);">Cena elegante</div>
+                    <div style="height: 100px; border: 2px solid var(--red-magazine); border-radius: 10px; display: flex; justify-content: center; align-items: center; text-align: center; font-family: var(--font-sans); font-size: 0.8rem; background: rgba(255,255,255,0.8);">Día de spa</div>
+                    <div style="height: 100px; background: var(--red-magazine); color: white; border-radius: 10px; display: flex; justify-content: center; align-items: center; text-align: center; font-family: var(--font-sans); font-weight: bold;">FREE SPACE</div>
+                    <div style="height: 100px; border: 2px solid var(--red-magazine); border-radius: 10px; display: flex; justify-content: center; align-items: center; text-align: center; font-family: var(--font-sans); font-size: 0.8rem; background: rgba(255,255,255,0.8);">Karaoke</div>
+                    <div style="height: 100px; border: 2px solid var(--red-magazine); border-radius: 10px; display: flex; justify-content: center; align-items: center; text-align: center; font-family: var(--font-sans); font-size: 0.8rem; background: rgba(255,255,255,0.8);">Cocinar juntos</div>
+                    <div style="height: 100px; border: 2px solid var(--red-magazine); border-radius: 10px; display: flex; justify-content: center; align-items: center; text-align: center; font-family: var(--font-sans); font-size: 0.8rem; background: rgba(255,255,255,0.8);">Museo</div>
+                    <div style="height: 100px; border: 2px solid var(--red-magazine); border-radius: 10px; display: flex; justify-content: center; align-items: center; text-align: center; font-family: var(--font-sans); font-size: 0.8rem; background: rgba(255,255,255,0.8);">Picnic</div>
+                </div>
+                <div class="page-number left">13</div>
+            </div>
+
+            <div class="page-half notebook-texture" style="padding-left: 70px;">
+                <h2 class="title-serif" style="color: var(--red-magazine); position:relative; z-index:2;">Where It All Began</h2>
+                <div style="width: 100%; height: 250px; background: #e0e0e0; margin-top: 20px; position:relative; z-index:2; border-radius: 10px; border: 3px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                    <div style="width: 100%; height: 100%; background-image: radial-gradient(#ccc 1px, transparent 1px); background-size: 20px 20px; display: flex; justify-content: center; align-items: center;">
+                        <svg width="50" height="50" viewBox="0 0 24 24" fill="#8a0c13" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    </div>
+                </div>
+                <p style="font-family: var(--font-hand); font-size: 1.8rem; text-align: center; margin-top: 20px; position:relative; z-index:2; color: #333;">Nuestra primera cita</p>
+                <div class="page-number right">14</div>
+            </div>
+        </div>
+
+        <!-- SPREAD 8: Pág 15 (Matching Styles) y Pág 16 (Next Chapter) -->
+        <div class="spread">
+            <div class="page-half" style="background: var(--paper);">
+                <h2 class="title-script" style="font-size: 3rem; text-align: center; color: var(--text-dark);">Matching Styles</h2>
+                <div style="display: flex; gap: 15px; margin-top: 30px;">
+                    <label class="clickable-frame clip-polaroid" id="c-15a" style="transform: rotate(-2deg); flex:1;">
+                        <input type="file" class="upload-input" onchange="previewImage(event, 'i-15a', 'c-15a')">
+                        <span class="upload-placeholder">Outfit 1</span><img id="i-15a" src="">
+                    </label>
+                    <label class="clickable-frame clip-polaroid" id="c-15b" style="transform: rotate(3deg); flex:1;">
+                        <input type="file" class="upload-input" onchange="previewImage(event, 'i-15b', 'c-15b')">
+                        <span class="upload-placeholder">Outfit 2</span><img id="i-15b" src="">
+                    </label>
+                </div>
+                <p style="font-family: var(--font-sans); font-size: 0.9rem; text-align: center; margin-top: 30px;">Siempre en sintonía.</p>
+                <div class="page-number left">15</div>
+            </div>
+
+            <div class="page-half" style="background: var(--red-magazine); color: white; align-items: center; justify-content: center; border-left: 1px solid rgba(255,255,255,0.2);">
+                <p class="title-script" style="font-size: 4rem; text-align: center; line-height: 1.2;">Onto the<br>Next Chapter</p>
+                <label class="clickable-frame" id="c-16" style="width: 200px; height: 250px; background: white; margin: 30px 0; border: 5px solid white; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transform: rotate(2deg);">
+                    <input type="file" class="upload-input" onchange="previewImage(event, 'i-16', 'c-16')">
+                    <span class="upload-placeholder" style="color: black;">Foto Final</span><img id="i-16" src="">
+                </label>
+                <p style="font-family: var(--font-sans); font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;">TO BE CONTINUED...</p>
+                <div class="page-number right white">16</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function previewImage(event, imageId, containerId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgElement = document.getElementById(imageId);
+                    imgElement.src = e.target.result;
+                    imgElement.style.opacity = '1';
+                    document.getElementById(containerId).classList.add('has-image');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
